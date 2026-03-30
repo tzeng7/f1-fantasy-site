@@ -15,6 +15,8 @@
     --text: #f0f0f0;
     --muted: #888;
     --green: #00c853;
+    --blue: #2196f3;
+    --orange: #ff9800;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -29,15 +31,39 @@
     padding: 1.5rem 2rem;
     text-align: center;
   }
-  header h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+  header h1 { font-size: 2rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
   header h1 span { color: var(--accent); }
   header p { color: var(--muted); margin-top: .3rem; font-size: .95rem; }
   #last-updated { color: var(--muted); font-size: .8rem; margin-top: .5rem; }
+
+  /* Auth bar */
+  .auth-bar {
+    background: #16213e;
+    border-bottom: 1px solid #262640;
+    padding: .6rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .8rem;
+    font-size: .85rem;
+  }
+  .auth-bar select, .auth-bar input, .auth-bar button {
+    padding: .4rem .7rem;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: var(--card);
+    color: var(--text);
+    font-size: .85rem;
+  }
+  .auth-bar button {
+    background: var(--accent);
+    border-color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .auth-bar button:hover { opacity: .9; }
+  .auth-bar .logged-in { color: var(--green); }
+  .auth-bar .logout-btn { background: #333; border-color: #555; }
 
   .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
 
@@ -53,12 +79,8 @@
   }
   .leader-card:hover { transform: translateY(-3px); }
   .leader-card .rank {
-    position: absolute;
-    top: 10px;
-    right: 14px;
-    font-size: 2.5rem;
-    font-weight: 900;
-    opacity: .15;
+    position: absolute; top: 10px; right: 14px;
+    font-size: 2.5rem; font-weight: 900; opacity: .15;
   }
   .leader-card.rank-1 { border-left: 4px solid var(--gold); }
   .leader-card.rank-2 { border-left: 4px solid var(--silver); }
@@ -67,23 +89,18 @@
   .leader-card .name { font-size: 1.4rem; font-weight: 700; text-transform: uppercase; }
   .leader-card .points { font-size: 2.2rem; font-weight: 800; color: var(--accent); margin: .3rem 0; }
   .leader-card .points small { font-size: .9rem; color: var(--muted); font-weight: 400; }
+  .leader-card .point-adj { font-size: .75rem; color: var(--orange); }
   .leader-card .drivers { color: var(--muted); font-size: .85rem; line-height: 1.6; }
   .leader-card .drivers .driver-line { display: flex; justify-content: space-between; }
   .leader-card .drivers .driver-pts { color: var(--text); font-weight: 600; }
 
-  /* Section headings */
   h2 { font-size: 1.3rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
   h2 span { color: var(--accent); }
 
-  /* Race-by-race summary table */
   .race-table-wrapper { overflow-x: auto; margin-bottom: 2rem; }
   table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--card);
-    border-radius: 10px;
-    overflow: hidden;
-    font-size: .9rem;
+    width: 100%; border-collapse: collapse; background: var(--card);
+    border-radius: 10px; overflow: hidden; font-size: .9rem;
   }
   th, td { padding: .7rem 1rem; text-align: left; white-space: nowrap; }
   th { background: #16213e; color: var(--muted); text-transform: uppercase; font-size: .75rem; letter-spacing: 1px; }
@@ -95,160 +112,151 @@
 
   .loading { text-align: center; padding: 3rem; color: var(--muted); }
   .loading .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid #333;
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-    margin: 0 auto 1rem;
+    width: 40px; height: 40px; border: 3px solid #333; border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 1rem;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .error-msg {
-    background: #2a1a1a;
-    border: 1px solid var(--accent);
-    border-radius: 8px;
-    padding: 1rem 1.5rem;
-    color: #ff6b6b;
-    margin-bottom: 1rem;
-  }
+  .error-msg { background: #2a1a1a; border: 1px solid var(--accent); border-radius: 8px; padding: 1rem 1.5rem; color: #ff6b6b; margin-bottom: 1rem; }
+  .success-msg { background: #1a2a1a; border: 1px solid var(--green); border-radius: 8px; padding: 1rem 1.5rem; color: #69f0ae; margin-bottom: 1rem; }
 
   .no-races { text-align: center; padding: 3rem; color: var(--muted); }
   .no-races h3 { font-size: 1.2rem; margin-bottom: .5rem; color: var(--text); }
 
-  /* Schedule grid — clickable race cards */
+  /* Schedule */
   .schedule-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: .7rem;
-    margin-bottom: 2rem;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .7rem; margin-bottom: 2rem;
   }
   .schedule-item {
-    background: var(--card);
-    border-radius: 8px;
-    padding: .8rem 1rem;
-    font-size: .8rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background: var(--card); border-radius: 8px; padding: .8rem 1rem; font-size: .8rem;
+    display: flex; justify-content: space-between; align-items: center;
     transition: transform .12s, background .12s;
   }
-  .schedule-item.completed {
-    border-left: 3px solid var(--green);
-    cursor: pointer;
-  }
-  .schedule-item.completed:hover {
-    transform: translateY(-2px);
-    background: #222244;
-  }
+  .schedule-item.completed { border-left: 3px solid var(--green); cursor: pointer; }
+  .schedule-item.completed:hover { transform: translateY(-2px); background: #222244; }
   .schedule-item.upcoming { border-left: 3px solid #444; }
   .schedule-item.next { border-left: 3px solid var(--gold); background: #1f1f35; }
-  .schedule-item .race-name { font-weight: 600; }
-  .schedule-item .race-date { color: var(--muted); }
+  .schedule-item.trade-window { border-left: 3px solid var(--orange); background: #2a2010; }
   .schedule-item .race-round {
-    background: rgba(255,255,255,.06);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-size: .7rem;
-    color: var(--muted);
-    margin-right: .5rem;
+    background: rgba(255,255,255,.06); border-radius: 4px; padding: 1px 6px; font-size: .7rem; color: var(--muted); margin-right: .5rem;
   }
-  .schedule-item .race-left {
-    display: flex;
-    align-items: center;
-    gap: .4rem;
-    min-width: 0;
-  }
-  .schedule-item .race-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  .schedule-item .race-left { display: flex; align-items: center; gap: .4rem; min-width: 0; }
+  .schedule-item .race-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .schedule-item .race-date { color: var(--muted); }
 
-  /* Modal overlay for race detail */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.7);
+  /* Trade window banner */
+  .trade-banner {
+    background: linear-gradient(135deg, #2a2010, #1a1a2e);
+    border: 1px solid var(--orange);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 1rem;
+    gap: 1rem;
+  }
+  .trade-banner .tb-icon { font-size: 1.5rem; }
+  .trade-banner .tb-text { flex: 1; }
+  .trade-banner .tb-text strong { color: var(--orange); }
+  .trade-banner .tb-text p { color: var(--muted); font-size: .8rem; margin-top: .2rem; }
+
+  /* Trade section */
+  .trade-section { margin-bottom: 2rem; }
+  .trade-form {
+    background: var(--card); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;
+  }
+  .trade-form h3 { font-size: 1rem; margin-bottom: 1rem; }
+  .trade-form-grid {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: start;
+  }
+  .trade-side { display: flex; flex-direction: column; gap: .6rem; }
+  .trade-side label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .trade-side select, .trade-side input {
+    padding: .5rem .7rem; border-radius: 6px; border: 1px solid #333;
+    background: #111; color: var(--text); font-size: .85rem; width: 100%;
+  }
+  .trade-arrow { display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--muted); padding-top: 1.5rem; }
+  .trade-driver-checks { display: flex; flex-direction: column; gap: .3rem; }
+  .trade-driver-checks label {
+    font-size: .85rem; color: var(--text); text-transform: none; letter-spacing: 0;
+    display: flex; align-items: center; gap: .5rem; cursor: pointer;
+  }
+  .trade-driver-checks input[type="checkbox"] { accent-color: var(--accent); }
+  .trade-submit {
+    margin-top: 1rem; padding: .6rem 1.5rem; background: var(--orange); color: #111;
+    border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: .9rem;
+  }
+  .trade-submit:hover { opacity: .9; }
+  .trade-submit:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* Pending trades */
+  .trade-card {
+    background: var(--card); border-radius: 10px; padding: 1.2rem; margin-bottom: .7rem;
+    border-left: 3px solid var(--orange);
+  }
+  .trade-card.trade-accepted { border-left-color: var(--green); opacity: .7; }
+  .trade-card.trade-rejected { border-left-color: var(--accent); opacity: .5; }
+  .trade-card.trade-cancelled { border-left-color: #555; opacity: .5; }
+  .trade-card .tc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+  .trade-card .tc-title { font-weight: 700; font-size: .95rem; }
+  .trade-card .tc-status { font-size: .75rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 600; }
+  .tc-status.pending { background: rgba(255,152,0,.2); color: var(--orange); }
+  .tc-status.accepted { background: rgba(0,200,83,.2); color: var(--green); }
+  .tc-status.rejected { background: rgba(225,6,0,.2); color: var(--accent); }
+  .tc-status.cancelled { background: rgba(100,100,100,.2); color: var(--muted); }
+  .trade-card .tc-detail { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .trade-card .tc-detail strong { color: var(--text); }
+  .trade-card .tc-actions { margin-top: .7rem; display: flex; gap: .5rem; }
+  .trade-card .tc-actions button {
+    padding: .4rem 1rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: .8rem;
+  }
+  .tc-accept { background: var(--green); color: #111; }
+  .tc-reject { background: var(--accent); color: white; }
+  .tc-cancel { background: #444; color: var(--text); }
+  .trade-card .tc-date { font-size: .7rem; color: #555; margin-top: .3rem; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7); display: flex;
+    align-items: center; justify-content: center; z-index: 100; padding: 1rem;
     animation: fadeIn .15s ease;
   }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   .modal {
-    background: #16213e;
-    border-radius: 14px;
-    max-width: 700px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-    padding: 2rem;
-    position: relative;
-    border: 1px solid #2a2a4a;
-    animation: slideUp .2s ease;
+    background: #16213e; border-radius: 14px; max-width: 700px; width: 100%;
+    max-height: 85vh; overflow-y: auto; padding: 2rem; position: relative;
+    border: 1px solid #2a2a4a; animation: slideUp .2s ease;
   }
   @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 1.5rem;
-    cursor: pointer;
-    line-height: 1;
-    transition: color .1s;
+    position: absolute; top: 1rem; right: 1rem; background: none; border: none;
+    color: var(--muted); font-size: 1.5rem; cursor: pointer; line-height: 1; transition: color .1s;
   }
   .modal-close:hover { color: var(--text); }
-  .modal h3 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: .3rem;
-  }
-  .modal .modal-subtitle {
-    color: var(--muted);
-    font-size: .85rem;
-    margin-bottom: 1.5rem;
-  }
+  .modal h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: .3rem; }
+  .modal .modal-subtitle { color: var(--muted); font-size: .85rem; margin-bottom: 1.5rem; }
   .modal table { font-size: .85rem; }
   .modal th { background: #1a1a3a; }
-
-  /* Fantasy points summary in modal */
   .modal-fantasy {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: .6rem;
-    margin-bottom: 1.5rem;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: .6rem; margin-bottom: 1.5rem;
   }
-  .modal-fantasy-card {
-    background: rgba(255,255,255,.04);
-    border-radius: 8px;
-    padding: .7rem .9rem;
-    text-align: center;
-  }
+  .modal-fantasy-card { background: rgba(255,255,255,.04); border-radius: 8px; padding: .7rem .9rem; text-align: center; }
   .modal-fantasy-card .mf-owner { font-weight: 700; font-size: .9rem; text-transform: uppercase; }
   .modal-fantasy-card .mf-pts { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
   .modal-fantasy-card .mf-pts small { font-size: .7rem; color: var(--muted); font-weight: 400; }
   .modal-fantasy-card.mf-winner { border: 1px solid var(--gold); }
+  .our-driver td { background: rgba(225,6,0,.08); }
 
-  /* Full results highlight rows */
-  .our-driver td { background: rgba(225, 6, 0, .08); }
+  footer { text-align: center; padding: 2rem; color: #444; font-size: .8rem; }
 
-  footer {
-    text-align: center;
-    padding: 2rem;
-    color: #444;
-    font-size: .8rem;
-  }
-
-  @media (max-width: 600px) {
+  @media (max-width: 700px) {
     header h1 { font-size: 1.4rem; }
     .leader-card .points { font-size: 1.6rem; }
     .modal { padding: 1.2rem; }
+    .trade-form-grid { grid-template-columns: 1fr; }
+    .trade-arrow { transform: rotate(90deg); padding: 0; }
+    .auth-bar { flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -260,12 +268,21 @@
   <div id="last-updated"></div>
 </header>
 
+<div class="auth-bar" id="auth-bar">
+  <select id="auth-user">
+    <option value="">Select user...</option>
+    <option value="Andrew">Andrew</option>
+    <option value="MK">MK</option>
+    <option value="Tzeng">Tzeng</option>
+    <option value="Neil">Neil</option>
+  </select>
+  <input type="password" id="auth-pin" placeholder="PIN" maxlength="6" style="width:80px">
+  <button id="auth-btn" onclick="doLogin()">Log in</button>
+</div>
+
 <div class="container">
   <div id="app">
-    <div class="loading">
-      <div class="spinner"></div>
-      Loading race data...
-    </div>
+    <div class="loading"><div class="spinner"></div>Loading race data...</div>
   </div>
 </div>
 
@@ -275,36 +292,109 @@
 
 <script>
 const SEASON = 2026;
+const FOUR_WEEKS_MS = 28 * 24 * 60 * 60 * 1000;
 
-const TEAMS = [
-  { owner: "Andrew", drivers: ["george russell", "pierre gasly", "arvid lindblad"] },
-  { owner: "MK", drivers: ["kimi antonelli", "nico hulkenberg", "liam lawson"] },
-  { owner: "Tzeng", drivers: ["charles leclerc", "ollie bearman", "alex albon"] },
-  { owner: "Neil", drivers: ["max verstappen", "franco colapinto", "carlos sainz"] }
-];
-
-const ALL_FANTASY_DRIVERS = new Set(TEAMS.flatMap(t => t.drivers));
+// These are the DEFAULT teams — actual current teams come from the API
+const DEFAULT_TEAMS = {
+  Andrew: ["george russell", "pierre gasly", "arvid lindblad"],
+  MK: ["kimi antonelli", "nico hulkenberg", "liam lawson"],
+  Tzeng: ["charles leclerc", "ollie bearman", "alex albon"],
+  Neil: ["max verstappen", "franco colapinto", "carlos sainz"]
+};
+const OWNERS = ["Andrew", "MK", "Tzeng", "Neil"];
 
 const POINTS_MAP = { 1:25, 2:18, 3:15, 4:12, 5:10, 6:8, 7:6, 8:4, 9:2, 10:1 };
 const SPRINT_POINTS_MAP = { 1:8, 2:7, 3:6, 4:5, 5:4, 6:3, 7:2, 8:1 };
 
-const API_BASE = "https://api.jolpi.ca/ergast/f1";
+const F1_API = "https://api.jolpi.ca/ergast/f1";
 
+// ---- State ----
+let currentUser = null;       // logged-in user name
+let currentPin = null;
+let currentTeams = null;      // from API (reflects trades)
+let pointAdjustments = null;  // from API
+let allTrades = [];
+let scheduleData = [];
+let tradeWindows = [];        // [{start, end}]
+let isTradeWindowOpen = false;
+
+// Full race results keyed by round
+const fullRaceResults = {};
+const fullSprintResults = {};
+
+// ---- Auth ----
+function loadSession() {
+  const u = localStorage.getItem("ff1_user");
+  const p = localStorage.getItem("ff1_pin");
+  if (u && p) { currentUser = u; currentPin = p; }
+}
+
+async function doLogin() {
+  const user = document.getElementById("auth-user").value;
+  const pin = document.getElementById("auth-pin").value;
+  if (!user || !pin) return;
+
+  try {
+    const r = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user, pin })
+    });
+    const data = await r.json();
+    if (!r.ok) { alert(data.error || "Login failed"); return; }
+    currentUser = data.user;
+    currentPin = pin;
+    localStorage.setItem("ff1_user", currentUser);
+    localStorage.setItem("ff1_pin", currentPin);
+    renderAuthBar();
+    renderApp();
+  } catch (e) { alert("Login failed: " + e.message); }
+}
+
+function doLogout() {
+  currentUser = null;
+  currentPin = null;
+  localStorage.removeItem("ff1_user");
+  localStorage.removeItem("ff1_pin");
+  renderAuthBar();
+  renderApp();
+}
+
+function renderAuthBar() {
+  const bar = document.getElementById("auth-bar");
+  if (currentUser) {
+    bar.innerHTML = `
+      <span class="logged-in">Logged in as <strong>${currentUser}</strong></span>
+      <button class="logout-btn" onclick="doLogout()">Log out</button>
+    `;
+  } else {
+    bar.innerHTML = `
+      <select id="auth-user">
+        <option value="">Select user...</option>
+        ${OWNERS.map(o => `<option value="${o}">${o}</option>`).join("")}
+      </select>
+      <input type="password" id="auth-pin" placeholder="PIN" maxlength="6" style="width:80px"
+        onkeydown="if(event.key==='Enter')doLogin()">
+      <button id="auth-btn" onclick="doLogin()">Log in</button>
+    `;
+  }
+}
+
+// ---- API helpers ----
 function normName(g, f) { return (g + " " + f).toLowerCase().trim(); }
+function capitalize(s) { return s.split(" ").map(w => w[0].toUpperCase() + w.slice(1)).join(" "); }
+function calcPts(pos, sprint = false) { return (sprint ? SPRINT_POINTS_MAP : POINTS_MAP)[parseInt(pos)] || 0; }
 
 function findOwner(name) {
+  if (!currentTeams) return null;
   const n = name.toLowerCase();
-  for (const t of TEAMS) {
-    for (const d of t.drivers) {
-      if (n === d || n.endsWith(d.split(" ").pop())) return t.owner;
+  for (const [owner, drivers] of Object.entries(currentTeams)) {
+    for (const d of drivers) {
+      if (n === d || n.endsWith(d.split(" ").pop())) return owner;
     }
   }
   return null;
 }
-
-function isOurDriver(name) { return findOwner(name) !== null; }
-
-function capitalize(s) { return s.split(" ").map(w => w[0].toUpperCase() + w.slice(1)).join(" "); }
 
 async function fetchJSON(url) {
   const r = await fetch(url);
@@ -312,108 +402,133 @@ async function fetchJSON(url) {
   return r.json();
 }
 
+async function loadTeamsFromServer() {
+  try {
+    const data = await fetchJSON("/api/teams");
+    currentTeams = data.teams;
+    pointAdjustments = data.pointAdjustments;
+  } catch {
+    currentTeams = { ...DEFAULT_TEAMS };
+    pointAdjustments = { Andrew: 0, MK: 0, Tzeng: 0, Neil: 0 };
+  }
+}
+
+async function loadTrades() {
+  try {
+    const data = await fetchJSON("/api/trades");
+    allTrades = data.trades || [];
+  } catch { allTrades = []; }
+}
+
 async function getRaceResults() {
-  try { return (await fetchJSON(`${API_BASE}/${SEASON}/results.json?limit=1000`)).MRData.RaceTable.Races || []; }
+  try { return (await fetchJSON(`${F1_API}/${SEASON}/results.json?limit=1000`)).MRData.RaceTable.Races || []; }
   catch { return []; }
 }
 async function getSprintResults() {
-  try { return (await fetchJSON(`${API_BASE}/${SEASON}/sprint.json?limit=1000`)).MRData.RaceTable.Races || []; }
+  try { return (await fetchJSON(`${F1_API}/${SEASON}/sprint.json?limit=1000`)).MRData.RaceTable.Races || []; }
   catch { return []; }
 }
 async function getSchedule() {
-  try { return (await fetchJSON(`${API_BASE}/${SEASON}.json`)).MRData.RaceTable.Races || []; }
+  try { return (await fetchJSON(`${F1_API}/${SEASON}.json`)).MRData.RaceTable.Races || []; }
   catch { return []; }
 }
 
-function calcPts(pos, sprint = false) { return (sprint ? SPRINT_POINTS_MAP : POINTS_MAP)[parseInt(pos)] || 0; }
+// ---- Trade window detection ----
+function detectTradeWindows(schedule) {
+  const sorted = [...schedule].sort((a, b) => a.date.localeCompare(b.date));
+  tradeWindows = [];
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const endDate = new Date(sorted[i].date + "T00:00:00");
+    const startNext = new Date(sorted[i + 1].date + "T00:00:00");
+    const gap = startNext - endDate;
+    if (gap > FOUR_WEEKS_MS) {
+      // Trade window: starts 3 days after last race, ends 3 days before next race
+      const winStart = new Date(endDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+      const winEnd = new Date(startNext.getTime() - 3 * 24 * 60 * 60 * 1000);
+      tradeWindows.push({
+        start: winStart,
+        end: winEnd,
+        afterRace: sorted[i].raceName,
+        beforeRace: sorted[i + 1].raceName
+      });
+    }
+  }
+  const now = new Date();
+  isTradeWindowOpen = tradeWindows.some(w => now >= w.start && now <= w.end);
+}
 
-// Store full race results (all 20 drivers) keyed by round
-const fullRaceResults = {};   // round -> [{driver, pos, pts, time, status, owner, fastestLap}]
-const fullSprintResults = {}; // round -> [...]
+function getCurrentTradeWindow() {
+  const now = new Date();
+  return tradeWindows.find(w => now >= w.start && now <= w.end) || null;
+}
 
+function getNextTradeWindow() {
+  const now = new Date();
+  return tradeWindows.find(w => now < w.start) || null;
+}
+
+// ---- Process F1 results ----
 function processResults(races, sprints) {
   const driverStats = {};
-  const raceBreakdown = []; // only fantasy-relevant summary
+  const raceBreakdown = [];
 
   for (const race of races) {
     const raceEntry = { name: race.raceName, round: parseInt(race.round), date: race.date, results: [] };
-    const fullResults = [];
-
+    const full = [];
     for (const r of race.Results) {
-      const fullName = normName(r.Driver.givenName, r.Driver.familyName);
+      const fn = normName(r.Driver.givenName, r.Driver.familyName);
       const pos = parseInt(r.position);
       let pts = calcPts(pos);
-      const hasFastestLap = r.FastestLap && r.FastestLap.rank === "1";
-      if (hasFastestLap && pos <= 10) pts += 1;
-      const owner = findOwner(fullName);
-
-      fullResults.push({
-        driver: fullName,
-        code: r.Driver.code || r.Driver.familyName.substring(0,3).toUpperCase(),
-        team: r.Constructor ? r.Constructor.name : "",
-        pos,
-        pts: owner ? pts : calcPts(pos), // show actual F1 pts for all
-        fantasyPts: owner ? pts : 0,
-        time: r.Time ? r.Time.time : r.status || "",
-        status: r.status,
-        owner,
-        fastestLap: hasFastestLap
+      const fl = r.FastestLap && r.FastestLap.rank === "1";
+      if (fl && pos <= 10) pts += 1;
+      const owner = findOwner(fn);
+      full.push({
+        driver: fn, code: r.Driver.code || "", team: r.Constructor ? r.Constructor.name : "",
+        pos, pts: calcPts(pos) + (fl && pos <= 10 ? 1 : 0), fantasyPts: owner ? pts : 0,
+        time: r.Time ? r.Time.time : r.status || "", status: r.status, owner, fastestLap: fl
       });
-
       if (owner) {
-        if (!driverStats[fullName]) driverStats[fullName] = { points: 0, races: [], owner };
-        driverStats[fullName].points += pts;
-        driverStats[fullName].races.push({ race: race.raceName, pos, pts, type: "race" });
-        raceEntry.results.push({ driver: fullName, owner, pos, pts });
+        if (!driverStats[fn]) driverStats[fn] = { points: 0, races: [], owner };
+        driverStats[fn].points += pts;
+        driverStats[fn].races.push({ race: race.raceName, pos, pts, type: "race" });
+        raceEntry.results.push({ driver: fn, owner, pos, pts });
       }
     }
-
-    fullRaceResults[parseInt(race.round)] = fullResults;
+    fullRaceResults[parseInt(race.round)] = full;
     if (raceEntry.results.length > 0) raceBreakdown.push(raceEntry);
   }
 
   for (const sprint of sprints) {
     const sprintEntry = { name: sprint.raceName + " (Sprint)", round: parseInt(sprint.round), date: sprint.date, results: [] };
-    const fullResults = [];
-
+    const full = [];
     for (const r of sprint.SprintResults) {
-      const fullName = normName(r.Driver.givenName, r.Driver.familyName);
+      const fn = normName(r.Driver.givenName, r.Driver.familyName);
       const pos = parseInt(r.position);
       const pts = calcPts(pos, true);
-      const owner = findOwner(fullName);
-
-      fullResults.push({
-        driver: fullName,
-        code: r.Driver.code || r.Driver.familyName.substring(0,3).toUpperCase(),
-        team: r.Constructor ? r.Constructor.name : "",
-        pos,
-        pts: calcPts(pos, true),
-        fantasyPts: owner ? pts : 0,
-        time: r.Time ? r.Time.time : r.status || "",
-        status: r.status,
-        owner,
-        fastestLap: false
+      const owner = findOwner(fn);
+      full.push({
+        driver: fn, code: r.Driver.code || "", team: r.Constructor ? r.Constructor.name : "",
+        pos, pts: calcPts(pos, true), fantasyPts: owner ? pts : 0,
+        time: r.Time ? r.Time.time : r.status || "", status: r.status, owner, fastestLap: false
       });
-
       if (owner) {
-        if (!driverStats[fullName]) driverStats[fullName] = { points: 0, races: [], owner };
-        driverStats[fullName].points += pts;
-        driverStats[fullName].races.push({ race: sprint.raceName + " Sprint", pos, pts, type: "sprint" });
-        sprintEntry.results.push({ driver: fullName, owner, pos, pts });
+        if (!driverStats[fn]) driverStats[fn] = { points: 0, races: [], owner };
+        driverStats[fn].points += pts;
+        driverStats[fn].races.push({ race: sprint.raceName + " Sprint", pos, pts, type: "sprint" });
+        sprintEntry.results.push({ driver: fn, owner, pos, pts });
       }
     }
-
-    fullSprintResults[parseInt(sprint.round)] = fullResults;
+    fullSprintResults[parseInt(sprint.round)] = full;
     if (sprintEntry.results.length > 0) raceBreakdown.push(sprintEntry);
   }
-
   return { driverStats, raceBreakdown };
 }
 
 function buildStandings(driverStats) {
-  return TEAMS.map(team => {
-    let total = 0;
-    const driverDetails = team.drivers.map(d => {
+  return OWNERS.map(owner => {
+    const drivers = currentTeams[owner] || [];
+    let total = pointAdjustments[owner] || 0;
+    const driverDetails = drivers.map(d => {
       let pts = 0, matchedName = d;
       for (const [name, stat] of Object.entries(driverStats)) {
         if (name === d || name.endsWith(d.split(" ").pop())) { pts = stat.points; matchedName = name; break; }
@@ -421,18 +536,73 @@ function buildStandings(driverStats) {
       total += pts;
       return { name: matchedName, pts };
     });
-    return { owner: team.owner, total, drivers: driverDetails };
+    return { owner, total, adj: pointAdjustments[owner] || 0, drivers: driverDetails };
   }).sort((a, b) => b.total - a.total);
 }
 
-// ---- Modal for race detail ----
+// ---- Trade actions ----
+async function proposeTrade() {
+  if (!currentUser || !currentPin) { alert("Please log in first"); return; }
+
+  const recipient = document.getElementById("trade-recipient").value;
+  if (!recipient) { alert("Select who to trade with"); return; }
+
+  const myChecked = [...document.querySelectorAll(".my-driver-check:checked")].map(c => c.value);
+  const theirChecked = [...document.querySelectorAll(".their-driver-check:checked")].map(c => c.value);
+
+  if (myChecked.length !== theirChecked.length) {
+    alert("You must trade equal number of drivers");
+    return;
+  }
+
+  const myPoints = parseInt(document.getElementById("trade-my-pts").value) || 0;
+  const theirPoints = parseInt(document.getElementById("trade-their-pts").value) || 0;
+
+  if (myChecked.length === 0 && theirChecked.length === 0 && myPoints === 0 && theirPoints === 0) {
+    alert("Trade must include something");
+    return;
+  }
+
+  try {
+    const r = await fetch("/api/trades", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        proposer: currentUser, pin: currentPin, recipient,
+        proposerGivesDrivers: myChecked, proposerGivesPoints: myPoints,
+        recipientGivesDrivers: theirChecked, recipientGivesPoints: theirPoints
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) { alert(data.error); return; }
+    await loadTrades();
+    renderApp();
+  } catch (e) { alert("Failed: " + e.message); }
+}
+
+async function respondTrade(tradeId, action) {
+  if (!currentUser || !currentPin) { alert("Please log in"); return; }
+  try {
+    const r = await fetch("/api/trade-respond", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tradeId, user: currentUser, pin: currentPin, action })
+    });
+    const data = await r.json();
+    if (!r.ok) { alert(data.error); return; }
+    if (data.teams) currentTeams = data.teams;
+    if (data.pointAdjustments) pointAdjustments = data.pointAdjustments;
+    await loadTrades();
+    // Re-process results with updated teams and re-render
+    await reprocessAndRender();
+  } catch (e) { alert("Failed: " + e.message); }
+}
+
+// ---- Race detail modal ----
 function openRaceModal(round, raceName, date, isSprint) {
   const results = isSprint ? fullSprintResults[round] : fullRaceResults[round];
   if (!results || results.length === 0) return;
-
-  // Calc fantasy points per owner for this race
-  const ownerPts = {};
-  TEAMS.forEach(t => ownerPts[t.owner] = 0);
+  const ownerPts = {}; OWNERS.forEach(o => ownerPts[o] = 0);
   results.forEach(r => { if (r.owner) ownerPts[r.owner] += r.fantasyPts; });
   const maxPts = Math.max(...Object.values(ownerPts));
 
@@ -440,50 +610,31 @@ function openRaceModal(round, raceName, date, isSprint) {
   overlay.className = "modal-overlay";
   overlay.addEventListener("click", e => { if (e.target === overlay) closeModal(); });
 
-  let html = `<div class="modal">
+  overlay.innerHTML = `<div class="modal">
     <button class="modal-close" onclick="closeModal()">&times;</button>
     <h3>${raceName}${isSprint ? " (Sprint)" : ""}</h3>
-    <div class="modal-subtitle">Round ${round} &mdash; ${new Date(date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</div>
-
+    <div class="modal-subtitle">Round ${round} &mdash; ${new Date(date+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}</div>
     <div class="modal-fantasy">
-      ${TEAMS.map(t => {
-        const pts = ownerPts[t.owner];
-        const winner = pts === maxPts && pts > 0 ? "mf-winner" : "";
-        return `<div class="modal-fantasy-card ${winner}">
-          <div class="mf-owner">${t.owner}</div>
-          <div class="mf-pts">${pts} <small>pts</small></div>
-        </div>`;
+      ${OWNERS.map(o => {
+        const p = ownerPts[o], w = p===maxPts&&p>0?"mf-winner":"";
+        return `<div class="modal-fantasy-card ${w}"><div class="mf-owner">${o}</div><div class="mf-pts">${p} <small>pts</small></div></div>`;
       }).join("")}
     </div>
-
     <table>
-      <tr><th>Pos</th><th>Driver</th><th>Team</th><th>${isSprint ? "Status" : "Time / Status"}</th><th>Pts</th><th>Fantasy</th></tr>
-      ${results.sort((a,b) => a.pos - b.pos).map(r => {
-        const posClass = r.pos <= 3 ? `pos-${r.pos}` : "";
-        const rowClass = r.owner ? "our-driver" : "";
-        const flBadge = r.fastestLap ? " &#9899;" : "";
-        return `<tr class="${rowClass}">
-          <td class="${posClass}">P${r.pos}</td>
-          <td>${capitalize(r.driver)}${flBadge}</td>
-          <td>${r.team}</td>
-          <td>${r.time}</td>
-          <td>${r.pts > 0 ? r.pts : ""}</td>
-          <td>${r.owner ? r.owner + " +" + r.fantasyPts : ""}</td>
-        </tr>`;
+      <tr><th>Pos</th><th>Driver</th><th>Team</th><th>${isSprint?"Status":"Time / Status"}</th><th>Pts</th><th>Fantasy</th></tr>
+      ${results.sort((a,b)=>a.pos-b.pos).map(r => {
+        const pc=r.pos<=3?`pos-${r.pos}`:"", rc=r.owner?"our-driver":"", fl=r.fastestLap?" &#9899;":"";
+        return `<tr class="${rc}"><td class="${pc}">P${r.pos}</td><td>${capitalize(r.driver)}${fl}</td><td>${r.team}</td><td>${r.time}</td><td>${r.pts>0?r.pts:""}</td><td>${r.owner?r.owner+" +"+r.fantasyPts:""}</td></tr>`;
       }).join("")}
     </table>
   </div>`;
 
-  overlay.innerHTML = html;
   document.getElementById("modal-root").appendChild(overlay);
   document.body.style.overflow = "hidden";
-
-  // ESC to close
   document.addEventListener("keydown", escHandler);
 }
 
 function escHandler(e) { if (e.key === "Escape") closeModal(); }
-
 function closeModal() {
   const el = document.querySelector(".modal-overlay");
   if (el) el.remove();
@@ -491,50 +642,140 @@ function closeModal() {
   document.removeEventListener("keydown", escHandler);
 }
 
+// ---- Update recipient drivers in trade form ----
+function onRecipientChange() {
+  const recipient = document.getElementById("trade-recipient").value;
+  const container = document.getElementById("their-drivers-list");
+  if (!recipient || !currentTeams[recipient]) { container.innerHTML = "<em style='color:var(--muted);font-size:.8rem'>Select a user</em>"; return; }
+  container.innerHTML = currentTeams[recipient].map(d =>
+    `<label><input type="checkbox" class="their-driver-check" value="${d}"> ${capitalize(d)}</label>`
+  ).join("");
+}
+
 // ---- Render ----
+let cachedDriverStats = {};
+let cachedRaceBreakdown = [];
+
+function renderApp() {
+  const standings = buildStandings(cachedDriverStats);
+  render(standings, cachedRaceBreakdown, scheduleData);
+}
+
 function render(standings, raceBreakdown, schedule) {
   const app = document.getElementById("app");
   const racesCompleted = raceBreakdown.filter(r => !r.name.includes("Sprint")).length;
-
   let html = "";
+
+  // Trade window banner
+  const curWindow = getCurrentTradeWindow();
+  const nextWindow = getNextTradeWindow();
+  if (curWindow) {
+    html += `<div class="trade-banner">
+      <div class="tb-icon">&#9878;</div>
+      <div class="tb-text">
+        <strong>Trade Window Open</strong>
+        <p>Between ${curWindow.afterRace} and ${curWindow.beforeRace} &mdash; closes ${curWindow.end.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</p>
+      </div>
+    </div>`;
+  } else if (nextWindow) {
+    html += `<div class="trade-banner" style="border-color:#444">
+      <div class="tb-icon" style="opacity:.4">&#9878;</div>
+      <div class="tb-text">
+        <strong style="color:var(--muted)">Next Trade Window</strong>
+        <p>Opens ${nextWindow.start.toLocaleDateString("en-US",{month:"short",day:"numeric"})} (between ${nextWindow.afterRace} and ${nextWindow.beforeRace})</p>
+      </div>
+    </div>`;
+  }
 
   // Leaderboard
   html += `<div class="leaderboard">`;
   standings.forEach((team, i) => {
     const rank = i + 1;
+    const adjStr = team.adj !== 0 ? `<div class="point-adj">(${team.adj > 0 ? "+" : ""}${team.adj} from trades)</div>` : "";
     html += `
       <div class="leader-card rank-${rank}">
         <div class="rank">#${rank}</div>
         <div class="name">${team.owner}</div>
         <div class="points">${team.total} <small>pts</small></div>
+        ${adjStr}
         <div class="drivers">
-          ${team.drivers.map(d => `
-            <div class="driver-line">
-              <span>${capitalize(d.name)}</span>
-              <span class="driver-pts">${d.pts}</span>
-            </div>
-          `).join("")}
+          ${team.drivers.map(d => `<div class="driver-line"><span>${capitalize(d.name)}</span><span class="driver-pts">${d.pts}</span></div>`).join("")}
         </div>
       </div>`;
   });
   html += `</div>`;
 
-  // Fantasy results summary table
+  // Trade section
+  const pendingTrades = allTrades.filter(t => t.status === "pending");
+  const pastTrades = allTrades.filter(t => t.status !== "pending");
+
+  if (isTradeWindowOpen || pendingTrades.length > 0 || pastTrades.length > 0) {
+    html += `<h2>Trade <span>Center</span></h2>`;
+
+    // Propose trade form (only during trade window + logged in)
+    if (isTradeWindowOpen && currentUser) {
+      const myDrivers = currentTeams[currentUser] || [];
+      const otherOwners = OWNERS.filter(o => o !== currentUser);
+      html += `<div class="trade-form">
+        <h3>Propose a Trade</h3>
+        <div class="trade-form-grid">
+          <div class="trade-side">
+            <label>You give</label>
+            <div class="trade-driver-checks">
+              ${myDrivers.map(d => `<label><input type="checkbox" class="my-driver-check" value="${d}"> ${capitalize(d)}</label>`).join("")}
+            </div>
+            <label>Points to give</label>
+            <input type="number" id="trade-my-pts" value="0" min="0">
+          </div>
+          <div class="trade-arrow">&#8644;</div>
+          <div class="trade-side">
+            <label>Trade with</label>
+            <select id="trade-recipient" onchange="onRecipientChange()">
+              <option value="">Select...</option>
+              ${otherOwners.map(o => `<option value="${o}">${o}</option>`).join("")}
+            </select>
+            <label>You receive</label>
+            <div class="trade-driver-checks" id="their-drivers-list">
+              <em style="color:var(--muted);font-size:.8rem">Select a user</em>
+            </div>
+            <label>Points to receive</label>
+            <input type="number" id="trade-their-pts" value="0" min="0">
+          </div>
+        </div>
+        <button class="trade-submit" onclick="proposeTrade()">Propose Trade</button>
+      </div>`;
+    } else if (isTradeWindowOpen && !currentUser) {
+      html += `<div class="trade-form" style="text-align:center;color:var(--muted)">Log in above to propose trades during this window.</div>`;
+    }
+
+    // Pending trades
+    if (pendingTrades.length > 0) {
+      html += `<h3 style="font-size:.95rem;margin:1rem 0 .5rem;color:var(--orange)">Pending Trades</h3>`;
+      for (const t of pendingTrades) {
+        html += renderTradeCard(t);
+      }
+    }
+
+    // Trade history
+    if (pastTrades.length > 0) {
+      html += `<details style="margin-top:1rem"><summary style="cursor:pointer;color:var(--muted);font-size:.85rem">Trade History (${pastTrades.length})</summary>`;
+      for (const t of [...pastTrades].reverse()) {
+        html += renderTradeCard(t);
+      }
+      html += `</details>`;
+    }
+  }
+
+  // Fantasy results table
   if (raceBreakdown.length > 0) {
-    html += `<h2>Race <span>Results</span></h2>`;
+    html += `<h2 style="margin-top:2rem">Race <span>Results</span></h2>`;
     html += `<div class="race-table-wrapper"><table>`;
     html += `<tr><th>Race</th><th>Driver</th><th>Owner</th><th>Pos</th><th>Pts</th></tr>`;
     for (const race of [...raceBreakdown].reverse()) {
       const sorted = [...race.results].sort((a, b) => a.pos - b.pos);
       sorted.forEach((r, idx) => {
-        const posClass = r.pos <= 3 ? `pos-${r.pos}` : "";
-        html += `<tr>
-          <td>${idx === 0 ? race.name : ""}</td>
-          <td>${capitalize(r.driver)}</td>
-          <td>${r.owner}</td>
-          <td class="${posClass}">P${r.pos}</td>
-          <td>${r.pts > 0 ? "+" + r.pts : "0"}</td>
-        </tr>`;
+        const pc = r.pos <= 3 ? `pos-${r.pos}` : "";
+        html += `<tr><td>${idx===0?race.name:""}</td><td>${capitalize(r.driver)}</td><td>${r.owner}</td><td class="${pc}">P${r.pos}</td><td>${r.pts>0?"+"+r.pts:"0"}</td></tr>`;
       });
     }
     html += `</table></div>`;
@@ -542,15 +783,21 @@ function render(standings, raceBreakdown, schedule) {
     html += `<div class="no-races"><h3>No race results yet</h3><p>Points will appear here once the 2026 season gets underway.</p></div>`;
   }
 
-  // Schedule sorted by date with clickable completed races
+  // Schedule
   if (schedule.length > 0) {
     const today = new Date().toISOString().slice(0, 10);
     const sorted = [...schedule].sort((a, b) => a.date.localeCompare(b.date));
-
-    html += `<h2>Season <span>Schedule</span></h2>`;
-    html += `<div class="schedule-grid">`;
+    html += `<h2>Season <span>Schedule</span></h2><div class="schedule-grid">`;
     let nextFound = false;
-    for (const race of sorted) {
+
+    // Build set of trade window date ranges for highlighting
+    const twRanges = tradeWindows.map(w => ({
+      start: w.start.toISOString().slice(0,10),
+      end: w.end.toISOString().slice(0,10)
+    }));
+
+    for (let si = 0; si < sorted.length; si++) {
+      const race = sorted[si];
       const raceDate = race.date;
       const round = parseInt(race.round);
       const completed = raceDate < today;
@@ -559,47 +806,110 @@ function render(standings, raceBreakdown, schedule) {
       const isNext = !completed && !nextFound;
       if (isNext) nextFound = true;
       const cls = completed ? "completed" : isNext ? "next" : "upcoming";
-      const clickRace = (completed && hasResults) ? `onclick="openRaceModal(${round}, '${race.raceName.replace(/'/g, "\\'")}', '${raceDate}', false)"` : "";
-      const clickSprint = (completed && hasSprint) ? `onclick="openRaceModal(${round}, '${race.raceName.replace(/'/g, "\\'")}', '${raceDate}', true)"` : "";
+      const click = (completed && hasResults) ? `onclick="openRaceModal(${round},'${race.raceName.replace(/'/g,"\\'")}','${raceDate}',false)"` : "";
 
-      html += `
-        <div class="schedule-item ${cls}" ${clickRace} title="${hasResults ? 'Click to view full results' : ''}">
-          <div class="race-left">
-            <span class="race-round">R${round}</span>
-            <span class="race-name">${race.raceName.replace("Grand Prix", "GP")}</span>
-          </div>
-          <span class="race-date">${new Date(raceDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
-        </div>`;
+      html += `<div class="schedule-item ${cls}" ${click} title="${hasResults?'Click to view full results':''}">
+        <div class="race-left"><span class="race-round">R${round}</span><span class="race-name">${race.raceName.replace("Grand Prix","GP")}</span></div>
+        <span class="race-date">${new Date(raceDate+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>
+      </div>`;
 
-      // Show a separate sprint card if there was a sprint this round
       if (hasSprint) {
-        html += `
-          <div class="schedule-item completed" ${clickSprint} title="Click to view sprint results" style="border-left-color: #ff9800;">
-            <div class="race-left">
-              <span class="race-round">R${round}</span>
-              <span class="race-name">${race.raceName.replace("Grand Prix", "GP")} Sprint</span>
-            </div>
-            <span class="race-date">Sprint</span>
+        const cs = `onclick="openRaceModal(${round},'${race.raceName.replace(/'/g,"\\'")}','${raceDate}',true)"`;
+        html += `<div class="schedule-item completed" ${cs} title="Click to view sprint results" style="border-left-color:#ff9800">
+          <div class="race-left"><span class="race-round">R${round}</span><span class="race-name">${race.raceName.replace("Grand Prix","GP")} Sprint</span></div>
+          <span class="race-date">Sprint</span>
+        </div>`;
+      }
+
+      // Insert trade window marker between races if applicable
+      if (si < sorted.length - 1) {
+        const tw = tradeWindows.find(w => {
+          const afterDate = race.date;
+          const beforeDate = sorted[si+1].date;
+          return w.afterRace === race.raceName || (w.start > new Date(afterDate) && w.end < new Date(beforeDate));
+        });
+        if (tw) {
+          html += `<div class="schedule-item trade-window">
+            <div class="race-left"><span class="race-round">&#9878;</span><span class="race-name">Trade Window</span></div>
+            <span class="race-date">${tw.start.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${tw.end.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>
           </div>`;
+        }
       }
     }
     html += `</div>`;
   }
 
   app.innerHTML = html;
-
   document.getElementById("last-updated").textContent =
     `Last updated: ${new Date().toLocaleString()} | ${racesCompleted} race${racesCompleted !== 1 ? "s" : ""} completed`;
 }
 
+function renderTradeCard(t) {
+  const pGives = t.proposerGives, rGives = t.recipientGives;
+  const pDrivers = (pGives.drivers||[]).map(d => capitalize(d)).join(", ") || "no drivers";
+  const rDrivers = (rGives.drivers||[]).map(d => capitalize(d)).join(", ") || "no drivers";
+  const pPts = pGives.points ? ` + ${pGives.points} pts` : "";
+  const rPts = rGives.points ? ` + ${rGives.points} pts` : "";
+
+  let actions = "";
+  if (t.status === "pending") {
+    if (currentUser === t.recipient) {
+      actions = `<div class="tc-actions">
+        <button class="tc-accept" onclick="respondTrade(${t.id},'accept')">Accept</button>
+        <button class="tc-reject" onclick="respondTrade(${t.id},'reject')">Reject</button>
+      </div>`;
+    } else if (currentUser === t.proposer) {
+      actions = `<div class="tc-actions">
+        <button class="tc-cancel" onclick="respondTrade(${t.id},'cancel')">Cancel</button>
+      </div>`;
+    }
+  }
+
+  return `<div class="trade-card trade-${t.status}">
+    <div class="tc-header">
+      <span class="tc-title">${t.proposer} &#8644; ${t.recipient}</span>
+      <span class="tc-status ${t.status}">${t.status}</span>
+    </div>
+    <div class="tc-detail">
+      <strong>${t.proposer}</strong> gives: ${pDrivers}${pPts}<br>
+      <strong>${t.recipient}</strong> gives: ${rDrivers}${rPts}
+    </div>
+    ${actions}
+    <div class="tc-date">${new Date(t.createdAt).toLocaleDateString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</div>
+  </div>`;
+}
+
+// ---- Cached race data for re-render after trades ----
+let cachedRaces = [], cachedSprints = [];
+
+async function reprocessAndRender() {
+  await loadTeamsFromServer();
+  const { driverStats, raceBreakdown } = processResults(cachedRaces, cachedSprints);
+  cachedDriverStats = driverStats;
+  cachedRaceBreakdown = raceBreakdown;
+  renderApp();
+}
+
+// ---- Init ----
 async function init() {
+  loadSession();
+  renderAuthBar();
+
   try {
-    const [races, sprints, schedule] = await Promise.all([
-      getRaceResults(), getSprintResults(), getSchedule()
+    const [races, sprints, schedule, _teams, _trades] = await Promise.all([
+      getRaceResults(), getSprintResults(), getSchedule(),
+      loadTeamsFromServer(), loadTrades()
     ]);
+
+    cachedRaces = races;
+    cachedSprints = sprints;
+    scheduleData = schedule;
+
+    detectTradeWindows(schedule);
     const { driverStats, raceBreakdown } = processResults(races, sprints);
-    const standings = buildStandings(driverStats);
-    render(standings, raceBreakdown, schedule);
+    cachedDriverStats = driverStats;
+    cachedRaceBreakdown = raceBreakdown;
+    renderApp();
   } catch (err) {
     document.getElementById("app").innerHTML =
       `<div class="error-msg">Failed to load data: ${err.message}. Try refreshing.</div>`;
