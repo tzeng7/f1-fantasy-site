@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasy F1 2026</title>
+<style>
+  :root {
+    --bg: #111;
+    --card: #1a1a2e;
+    --accent: #e10600;
+    --gold: #ffd700;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+    --text: #f0f0f0;
+    --muted: #888;
+    --green: #00c853;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-bottom: 3px solid var(--accent);
+    padding: 1.5rem 2rem;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); margin-top: .3rem; font-size: .95rem; }
+  #last-updated { color: var(--muted); font-size: .8rem; margin-top: .5rem; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+  /* Leaderboard */
+  .leaderboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .leader-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform .15s;
+  }
+  .leader-card:hover { transform: translateY(-3px); }
+  .leader-card .rank {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 2.5rem;
+    font-weight: 900;
+    opacity: .15;
+  }
+  .leader-card.rank-1 { border-left: 4px solid var(--gold); }
+  .leader-card.rank-2 { border-left: 4px solid var(--silver); }
+  .leader-card.rank-3 { border-left: 4px solid var(--bronze); }
+  .leader-card.rank-4 { border-left: 4px solid #555; }
+  .leader-card .name { font-size: 1.4rem; font-weight: 700; text-transform: uppercase; }
+  .leader-card .points { font-size: 2.2rem; font-weight: 800; color: var(--accent); margin: .3rem 0; }
+  .leader-card .points small { font-size: .9rem; color: var(--muted); font-weight: 400; }
+  .leader-card .drivers { color: var(--muted); font-size: .85rem; line-height: 1.6; }
+  .leader-card .drivers .driver-line { display: flex; justify-content: space-between; }
+  .leader-card .drivers .driver-pts { color: var(--text); font-weight: 600; }
+
+  /* Section headings */
+  h2 { font-size: 1.3rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+  h2 span { color: var(--accent); }
+
+  /* Race-by-race summary table */
+  .race-table-wrapper { overflow-x: auto; margin-bottom: 2rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: .9rem;
+  }
+  th, td { padding: .7rem 1rem; text-align: left; white-space: nowrap; }
+  th { background: #16213e; color: var(--muted); text-transform: uppercase; font-size: .75rem; letter-spacing: 1px; }
+  tr:not(:last-child) td { border-bottom: 1px solid #262640; }
+  tr:hover td { background: rgba(225,6,0,.05); }
+  .pos-1 { color: var(--gold); font-weight: 700; }
+  .pos-2 { color: var(--silver); font-weight: 700; }
+  .pos-3 { color: var(--bronze); font-weight: 700; }
+
+  .loading { text-align: center; padding: 3rem; color: var(--muted); }
+  .loading .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid #333;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-msg {
+    background: #2a1a1a;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    color: #ff6b6b;
+    margin-bottom: 1rem;
+  }
+
+  .no-races { text-align: center; padding: 3rem; color: var(--muted); }
+  .no-races h3 { font-size: 1.2rem; margin-bottom: .5rem; color: var(--text); }
+
+  /* Schedule grid — clickable race cards */
+  .schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: .7rem;
+    margin-bottom: 2rem;
+  }
+  .schedule-item {
+    background: var(--card);
+    border-radius: 8px;
+    padding: .8rem 1rem;
+    font-size: .8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform .12s, background .12s;
+  }
+  .schedule-item.completed {
+    border-left: 3px solid var(--green);
+    cursor: pointer;
+  }
+  .schedule-item.completed:hover {
+    transform: translateY(-2px);
+    background: #222244;
+  }
+  .schedule-item.upcoming { border-left: 3px solid #444; }
+  .schedule-item.next { border-left: 3px solid var(--gold); background: #1f1f35; }
+  .schedule-item .race-name { font-weight: 600; }
+  .schedule-item .race-date { color: var(--muted); }
+  .schedule-item .race-round {
+    background: rgba(255,255,255,.06);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: .7rem;
+    color: var(--muted);
+    margin-right: .5rem;
+  }
+  .schedule-item .race-left {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    min-width: 0;
+  }
+  .schedule-item .race-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Modal overlay for race detail */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+    animation: fadeIn .15s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: #16213e;
+    border-radius: 14px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 2rem;
+    position: relative;
+    border: 1px solid #2a2a4a;
+    animation: slideUp .2s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color .1s;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: .3rem;
+  }
+  .modal .modal-subtitle {
+    color: var(--muted);
+    font-size: .85rem;
+    margin-bottom: 1.5rem;
+  }
+  .modal table { font-size: .85rem; }
+  .modal th { background: #1a1a3a; }
+
+  /* Fantasy points summary in modal */
+  .modal-fantasy {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: .6rem;
+    margin-bottom: 1.5rem;
+  }
+  .modal-fantasy-card {
+    background: rgba(255,255,255,.04);
+    border-radius: 8px;
+    padding: .7rem .9rem;
+    text-align: center;
+  }
+  .modal-fantasy-card .mf-owner { font-weight: 700; font-size: .9rem; text-transform: uppercase; }
+  .modal-fantasy-card .mf-pts { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+  .modal-fantasy-card .mf-pts small { font-size: .7rem; color: var(--muted); font-weight: 400; }
+  .modal-fantasy-card.mf-winner { border: 1px solid var(--gold); }
+
+  /* Full results highlight rows */
+  .our-driver td { background: rgba(225, 6, 0, .08); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: #444;
+    font-size: .8rem;
+  }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.4rem; }
+    .leader-card .points { font-size: 1.6rem; }
+    .modal { padding: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Fantasy <span>F1</span> 2026</h1>
+  <p>Andrew &bull; MK &bull; Tzeng &bull; Neil</p>
+  <div id="last-updated"></div>
+</header>
+
+<div class="container">
+  <div id="app">
+    <div class="loading">
+      <div class="spinner"></div>
+      Loading race data...
+    </div>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+
+<footer>Fantasy F1 Tracker 2026 &mdash; Data from Jolpica F1 API</footer>
+
+<script>
+const SEASON = 2026;
+
+const TEAMS = [
+  { owner: "Andrew", drivers: ["george russell", "pierre gasly", "arvid lindblad"] },
+  { owner: "MK", drivers: ["kimi antonelli", "nico hulkenberg", "liam lawson"] },
+  { owner: "Tzeng", drivers: ["charles leclerc", "ollie bearman", "alex albon"] },
+  { owner: "Neil", drivers: ["max verstappen", "franco colapinto", "carlos sainz"] }
+];
+
+const ALL_FANTASY_DRIVERS = new Set(TEAMS.flatMap(t => t.drivers));
+
+const POINTS_MAP = { 1:25, 2:18, 3:15, 4:12, 5:10, 6:8, 7:6, 8:4, 9:2, 10:1 };
+const SPRINT_POINTS_MAP = { 1:8, 2:7, 3:6, 4:5, 5:4, 6:3, 7:2, 8:1 };
+
+const API_BASE = "https://api.jolpi.ca/ergast/f1";
+
+function normName(g, f) { return (g + " " + f).toLowerCase().trim(); }
+
+function findOwner(name) {
+  const n = name.toLowerCase();
+  for (const t of TEAMS) {
+    for (const d of t.drivers) {
+      if (n === d || n.endsWith(d.split(" ").pop())) return t.owner;
+    }
+  }
+  return null;
+}
+
+function isOurDriver(name) { return findOwner(name) !== null; }
+
+function capitalize(s) { return s.split(" ").map(w => w[0].toUpperCase() + w.slice(1)).join(" "); }
+
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`API ${r.status}`);
+  return r.json();
+}
+
+async function getRaceResults() {
+  try { return (await fetchJSON(`${API_BASE}/${SEASON}/results.json?limit=1000`)).MRData.RaceTable.Races || []; }
+  catch { return []; }
+}
+async function getSprintResults() {
+  try { return (await fetchJSON(`${API_BASE}/${SEASON}/sprint.json?limit=1000`)).MRData.RaceTable.Races || []; }
+  catch { return []; }
+}
+async function getSchedule() {
+  try { return (await fetchJSON(`${API_BASE}/${SEASON}.json`)).MRData.RaceTable.Races || []; }
+  catch { return []; }
+}
+
+function calcPts(pos, sprint = false) { return (sprint ? SPRINT_POINTS_MAP : POINTS_MAP)[parseInt(pos)] || 0; }
+
+// Store full race results (all 20 drivers) keyed by round
+const fullRaceResults = {};   // round -> [{driver, pos, pts, time, status, owner, fastestLap}]
+const fullSprintResults = {}; // round -> [...]
+
+function processResults(races, sprints) {
+  const driverStats = {};
+  const raceBreakdown = []; // only fantasy-relevant summary
+
+  for (const race of races) {
+    const raceEntry = { name: race.raceName, round: parseInt(race.round), date: race.date, results: [] };
+    const fullResults = [];
+
+    for (const r of race.Results) {
+      const fullName = normName(r.Driver.givenName, r.Driver.familyName);
+      const pos = parseInt(r.position);
+      let pts = calcPts(pos);
+      const hasFastestLap = r.FastestLap && r.FastestLap.rank === "1";
+      if (hasFastestLap && pos <= 10) pts += 1;
+      const owner = findOwner(fullName);
+
+      fullResults.push({
+        driver: fullName,
+        code: r.Driver.code || r.Driver.familyName.substring(0,3).toUpperCase(),
+        team: r.Constructor ? r.Constructor.name : "",
+        pos,
+        pts: owner ? pts : calcPts(pos), // show actual F1 pts for all
+        fantasyPts: owner ? pts : 0,
+        time: r.Time ? r.Time.time : r.status || "",
+        status: r.status,
+        owner,
+        fastestLap: hasFastestLap
+      });
+
+      if (owner) {
+        if (!driverStats[fullName]) driverStats[fullName] = { points: 0, races: [], owner };
+        driverStats[fullName].points += pts;
+        driverStats[fullName].races.push({ race: race.raceName, pos, pts, type: "race" });
+        raceEntry.results.push({ driver: fullName, owner, pos, pts });
+      }
+    }
+
+    fullRaceResults[parseInt(race.round)] = fullResults;
+    if (raceEntry.results.length > 0) raceBreakdown.push(raceEntry);
+  }
+
+  for (const sprint of sprints) {
+    const sprintEntry = { name: sprint.raceName + " (Sprint)", round: parseInt(sprint.round), date: sprint.date, results: [] };
+    const fullResults = [];
+
+    for (const r of sprint.SprintResults) {
+      const fullName = normName(r.Driver.givenName, r.Driver.familyName);
+      const pos = parseInt(r.position);
+      const pts = calcPts(pos, true);
+      const owner = findOwner(fullName);
+
+      fullResults.push({
+        driver: fullName,
+        code: r.Driver.code || r.Driver.familyName.substring(0,3).toUpperCase(),
+        team: r.Constructor ? r.Constructor.name : "",
+        pos,
+        pts: calcPts(pos, true),
+        fantasyPts: owner ? pts : 0,
+        time: r.Time ? r.Time.time : r.status || "",
+        status: r.status,
+        owner,
+        fastestLap: false
+      });
+
+      if (owner) {
+        if (!driverStats[fullName]) driverStats[fullName] = { points: 0, races: [], owner };
+        driverStats[fullName].points += pts;
+        driverStats[fullName].races.push({ race: sprint.raceName + " Sprint", pos, pts, type: "sprint" });
+        sprintEntry.results.push({ driver: fullName, owner, pos, pts });
+      }
+    }
+
+    fullSprintResults[parseInt(sprint.round)] = fullResults;
+    if (sprintEntry.results.length > 0) raceBreakdown.push(sprintEntry);
+  }
+
+  return { driverStats, raceBreakdown };
+}
+
+function buildStandings(driverStats) {
+  return TEAMS.map(team => {
+    let total = 0;
+    const driverDetails = team.drivers.map(d => {
+      let pts = 0, matchedName = d;
+      for (const [name, stat] of Object.entries(driverStats)) {
+        if (name === d || name.endsWith(d.split(" ").pop())) { pts = stat.points; matchedName = name; break; }
+      }
+      total += pts;
+      return { name: matchedName, pts };
+    });
+    return { owner: team.owner, total, drivers: driverDetails };
+  }).sort((a, b) => b.total - a.total);
+}
+
+// ---- Modal for race detail ----
+function openRaceModal(round, raceName, date, isSprint) {
+  const results = isSprint ? fullSprintResults[round] : fullRaceResults[round];
+  if (!results || results.length === 0) return;
+
+  // Calc fantasy points per owner for this race
+  const ownerPts = {};
+  TEAMS.forEach(t => ownerPts[t.owner] = 0);
+  results.forEach(r => { if (r.owner) ownerPts[r.owner] += r.fantasyPts; });
+  const maxPts = Math.max(...Object.values(ownerPts));
+
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.addEventListener("click", e => { if (e.target === overlay) closeModal(); });
+
+  let html = `<div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h3>${raceName}${isSprint ? " (Sprint)" : ""}</h3>
+    <div class="modal-subtitle">Round ${round} &mdash; ${new Date(date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</div>
+
+    <div class="modal-fantasy">
+      ${TEAMS.map(t => {
+        const pts = ownerPts[t.owner];
+        const winner = pts === maxPts && pts > 0 ? "mf-winner" : "";
+        return `<div class="modal-fantasy-card ${winner}">
+          <div class="mf-owner">${t.owner}</div>
+          <div class="mf-pts">${pts} <small>pts</small></div>
+        </div>`;
+      }).join("")}
+    </div>
+
+    <table>
+      <tr><th>Pos</th><th>Driver</th><th>Team</th><th>${isSprint ? "Status" : "Time / Status"}</th><th>Pts</th><th>Fantasy</th></tr>
+      ${results.sort((a,b) => a.pos - b.pos).map(r => {
+        const posClass = r.pos <= 3 ? `pos-${r.pos}` : "";
+        const rowClass = r.owner ? "our-driver" : "";
+        const flBadge = r.fastestLap ? " &#9899;" : "";
+        return `<tr class="${rowClass}">
+          <td class="${posClass}">P${r.pos}</td>
+          <td>${capitalize(r.driver)}${flBadge}</td>
+          <td>${r.team}</td>
+          <td>${r.time}</td>
+          <td>${r.pts > 0 ? r.pts : ""}</td>
+          <td>${r.owner ? r.owner + " +" + r.fantasyPts : ""}</td>
+        </tr>`;
+      }).join("")}
+    </table>
+  </div>`;
+
+  overlay.innerHTML = html;
+  document.getElementById("modal-root").appendChild(overlay);
+  document.body.style.overflow = "hidden";
+
+  // ESC to close
+  document.addEventListener("keydown", escHandler);
+}
+
+function escHandler(e) { if (e.key === "Escape") closeModal(); }
+
+function closeModal() {
+  const el = document.querySelector(".modal-overlay");
+  if (el) el.remove();
+  document.body.style.overflow = "";
+  document.removeEventListener("keydown", escHandler);
+}
+
+// ---- Render ----
+function render(standings, raceBreakdown, schedule) {
+  const app = document.getElementById("app");
+  const racesCompleted = raceBreakdown.filter(r => !r.name.includes("Sprint")).length;
+
+  let html = "";
+
+  // Leaderboard
+  html += `<div class="leaderboard">`;
+  standings.forEach((team, i) => {
+    const rank = i + 1;
+    html += `
+      <div class="leader-card rank-${rank}">
+        <div class="rank">#${rank}</div>
+        <div class="name">${team.owner}</div>
+        <div class="points">${team.total} <small>pts</small></div>
+        <div class="drivers">
+          ${team.drivers.map(d => `
+            <div class="driver-line">
+              <span>${capitalize(d.name)}</span>
+              <span class="driver-pts">${d.pts}</span>
+            </div>
+          `).join("")}
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  // Fantasy results summary table
+  if (raceBreakdown.length > 0) {
+    html += `<h2>Race <span>Results</span></h2>`;
+    html += `<div class="race-table-wrapper"><table>`;
+    html += `<tr><th>Race</th><th>Driver</th><th>Owner</th><th>Pos</th><th>Pts</th></tr>`;
+    for (const race of [...raceBreakdown].reverse()) {
+      const sorted = [...race.results].sort((a, b) => a.pos - b.pos);
+      sorted.forEach((r, idx) => {
+        const posClass = r.pos <= 3 ? `pos-${r.pos}` : "";
+        html += `<tr>
+          <td>${idx === 0 ? race.name : ""}</td>
+          <td>${capitalize(r.driver)}</td>
+          <td>${r.owner}</td>
+          <td class="${posClass}">P${r.pos}</td>
+          <td>${r.pts > 0 ? "+" + r.pts : "0"}</td>
+        </tr>`;
+      });
+    }
+    html += `</table></div>`;
+  } else {
+    html += `<div class="no-races"><h3>No race results yet</h3><p>Points will appear here once the 2026 season gets underway.</p></div>`;
+  }
+
+  // Schedule sorted by date with clickable completed races
+  if (schedule.length > 0) {
+    const today = new Date().toISOString().slice(0, 10);
+    const sorted = [...schedule].sort((a, b) => a.date.localeCompare(b.date));
+
+    html += `<h2>Season <span>Schedule</span></h2>`;
+    html += `<div class="schedule-grid">`;
+    let nextFound = false;
+    for (const race of sorted) {
+      const raceDate = race.date;
+      const round = parseInt(race.round);
+      const completed = raceDate < today;
+      const hasResults = !!fullRaceResults[round];
+      const hasSprint = !!fullSprintResults[round];
+      const isNext = !completed && !nextFound;
+      if (isNext) nextFound = true;
+      const cls = completed ? "completed" : isNext ? "next" : "upcoming";
+      const clickRace = (completed && hasResults) ? `onclick="openRaceModal(${round}, '${race.raceName.replace(/'/g, "\\'")}', '${raceDate}', false)"` : "";
+      const clickSprint = (completed && hasSprint) ? `onclick="openRaceModal(${round}, '${race.raceName.replace(/'/g, "\\'")}', '${raceDate}', true)"` : "";
+
+      html += `
+        <div class="schedule-item ${cls}" ${clickRace} title="${hasResults ? 'Click to view full results' : ''}">
+          <div class="race-left">
+            <span class="race-round">R${round}</span>
+            <span class="race-name">${race.raceName.replace("Grand Prix", "GP")}</span>
+          </div>
+          <span class="race-date">${new Date(raceDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+        </div>`;
+
+      // Show a separate sprint card if there was a sprint this round
+      if (hasSprint) {
+        html += `
+          <div class="schedule-item completed" ${clickSprint} title="Click to view sprint results" style="border-left-color: #ff9800;">
+            <div class="race-left">
+              <span class="race-round">R${round}</span>
+              <span class="race-name">${race.raceName.replace("Grand Prix", "GP")} Sprint</span>
+            </div>
+            <span class="race-date">Sprint</span>
+          </div>`;
+      }
+    }
+    html += `</div>`;
+  }
+
+  app.innerHTML = html;
+
+  document.getElementById("last-updated").textContent =
+    `Last updated: ${new Date().toLocaleString()} | ${racesCompleted} race${racesCompleted !== 1 ? "s" : ""} completed`;
+}
+
+async function init() {
+  try {
+    const [races, sprints, schedule] = await Promise.all([
+      getRaceResults(), getSprintResults(), getSchedule()
+    ]);
+    const { driverStats, raceBreakdown } = processResults(races, sprints);
+    const standings = buildStandings(driverStats);
+    render(standings, raceBreakdown, schedule);
+  } catch (err) {
+    document.getElementById("app").innerHTML =
+      `<div class="error-msg">Failed to load data: ${err.message}. Try refreshing.</div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
